@@ -15,7 +15,7 @@ name := "condense"
 ThisBuild / organization := "io.jobial"
 ThisBuild / scalaVersion := "2.12.13"
 ThisBuild / crossScalaVersions := Seq("2.11.12", "2.12.13", "2.13.6")
-ThisBuild / version := "0.3.0"
+ThisBuild / version := "0.4.0"
 ThisBuild / scalacOptions += "-target:jvm-1.8"
 ThisBuild / publishArtifact in(Test, packageBin) := true
 ThisBuild / publishArtifact in(Test, packageSrc) := true
@@ -41,7 +41,7 @@ lazy val commonSettings = Seq(
 
 lazy val CloudformationTemplateGeneratorVersion = "3.10.4"
 lazy val SclapVersion = "1.1.7"
-lazy val ScaseVersion = "0.3.0"
+lazy val ScaseVersion = "0.4.0"
 
 lazy val root: Project = project
   .in(file("."))
