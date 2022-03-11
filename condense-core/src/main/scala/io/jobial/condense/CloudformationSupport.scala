@@ -20,7 +20,7 @@ import com.monsanto.arch.cloudformation.model.resource._
 import com.monsanto.arch.cloudformation.model.resource.`AWS::EC2::Volume`._
 import com.monsanto.arch.cloudformation.model.simple.Builders._
 import io.jobial.scase.aws.client.{ConfigurationUtils, S3Client, StsClient}
-import io.jobial.scase.aws.lambda.{LambdaRequestHandler, LambdaRequestResponseServiceConfiguration}
+import io.jobial.scase.aws.lambda.{LambdaRequestHandler}
 import io.jobial.scase.core.RequestHandler
 import io.jobial.scase.logging.Logging
 import org.apache.commons.io.IOUtils
@@ -1421,6 +1421,9 @@ trait CloudformationSupport extends ConfigurationUtils with DefaultJsonProtocol 
     else
       parts.reverse.dropWhile(!_.endsWith(".jar!")).drop(2).head
   }
+
+  def lambda[T: ClassTag](implicit context: StackContext): IO[Template] =
+    lambda[T]()
 
   //  def lambda[REQ, RESP](config: LambdaRequestResponseServiceConfiguration[REQ, RESP]) = {
   //
