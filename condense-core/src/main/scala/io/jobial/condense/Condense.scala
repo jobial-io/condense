@@ -85,7 +85,8 @@ object Condense extends CommandLineApp with CloudformationClient with S3Client w
             createOrUpdateStackSubcommand(context),
             createStackSubcommand(context),
             updateStackSubcommand(context),
-            deleteStackSubcommand(context)
+            deleteStackSubcommand(context),
+            printTemplateSubcommand(context)
           )
         } yield subcommandResult
       }
@@ -216,6 +217,17 @@ object Condense extends CommandLineApp with CloudformationClient with S3Client w
         for {
           context <- context
           r <- deleteStackWithCleanup(context)
+        } yield r
+      }
+
+  def printTemplateSubcommand(context: IO[StackContext]) =
+    subcommand("print-template")
+      .header("Print generated template.")
+      .description("This command prints the generated template.") {
+        for {
+          context <- context
+          template <- context.template
+          r <- IO(println(template.toJson.prettyPrint))
         } yield r
       }
 

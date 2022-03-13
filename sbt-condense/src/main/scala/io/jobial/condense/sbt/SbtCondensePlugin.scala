@@ -60,8 +60,13 @@ object SbtCondensePlugin extends AutoPlugin {
         println(sys.props("java.class.path"))
         val processBuilder = new ProcessBuilder
         val java = s"${sys.props("java.home")}${File.separator}bin${File.separator}java"
+        val condenseArgs =
+          if (args.toList.isEmpty)
+            Seq(s"--lambda-file=${(artifactPath in Proguard).value}", cloudformationStackClass.value) ++ args ++ Some("create-or-update")
+          else
+            Some(cloudformationStackClass.value) ++ args
         val commandLine = List(java, "-Xmx512m", "-cp", (Runtime / fullClasspath).value.map(_.data.toString).mkString(File.pathSeparator),
-          "io.jobial.condense.Condense", s"--lambda-file=${(artifactPath in Proguard).value}", cloudformationStackClass.value) ++ args ++ Some("create-or-update")
+          "io.jobial.condense.Condense") ++ condenseArgs
         println(commandLine)
         val c = processBuilder.inheritIO.command(commandLine.asJava)
         val process = c.start()
