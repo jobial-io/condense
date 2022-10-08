@@ -30,6 +30,4 @@ trait CloudformationStack
   def onUpdate(implicit context: StackContext): IO[StackContext] = IO(context)
 
   implicit val awsContext = AwsContext()
-
-  implicit val contextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 }

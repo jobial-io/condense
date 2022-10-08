@@ -12,25 +12,33 @@
  */
 package io.jobial.condense
 
-import cats.effect.{ContextShift, IO}
-import com.amazonaws.services.lambda.runtime.RequestStreamHandler
-import com.monsanto.arch.cloudformation.model._
+import cats.effect.Concurrent
+import cats.effect.IO
 import com.monsanto.arch.cloudformation.model.Token._
+import com.monsanto.arch.cloudformation.model._
 import com.monsanto.arch.cloudformation.model.resource._
 import com.monsanto.arch.cloudformation.model.resource.`AWS::EC2::Volume`._
 import com.monsanto.arch.cloudformation.model.simple.Builders._
-import io.jobial.scase.aws.client.{ConfigurationUtils, S3Client, StsClient}
-import io.jobial.scase.aws.lambda.{LambdaRequestHandler}
-import io.jobial.scase.core.RequestHandler
+import io.jobial.scase.aws.client.ConfigurationUtils
+import io.jobial.scase.aws.client.S3Client
+import io.jobial.scase.aws.client.StsClient
+import io.jobial.scase.aws.lambda.LambdaRequestHandler
 import io.jobial.scase.logging.Logging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import spray.json._
-
-import scala.concurrent.duration.{Duration, _}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import scala.reflect.ClassTag
 
-trait CloudformationSupport extends ConfigurationUtils with DefaultJsonProtocol with S3Client with StsClient with Logging {
+trait CloudformationSupport extends ConfigurationUtils with DefaultJsonProtocol with S3Client[IO] with StsClient[IO] with Logging {
+
+  implicit val contextShift = IO.contextShift(global)
+
+  val concurrent = Concurrent[IO]
+
+  val timer = IO.timer(global)
 
   case class CloudformationExpression(value: JsValue) {
     override def toString = value.prettyPrint
@@ -1489,7 +1497,7 @@ trait CloudformationSupport extends ConfigurationUtils with DefaultJsonProtocol 
           c.asInstanceOf[Class[LambdaRequestHandler[IO, _, _]]].newInstance.serviceConfiguration.functionName
         else
           c.getSimpleName.replaceAll("\\$", "")
-      _ <- IO(logger.debug(s"lambda for $c"))
+      _ <- debug[IO](s"lambda for $c")
       roleName = s"lambdaRole${name.capitalize}"
     } yield
       (for {

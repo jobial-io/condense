@@ -12,6 +12,7 @@
  */
 package io.jobial.condense
 
+import cats.effect.Concurrent
 import cats.effect.IO
 import com.amazonaws.services.cloudformation.model.AlreadyExistsException
 import io.jobial.scase.aws.client._
@@ -19,13 +20,13 @@ import io.jobial.scase.util.Hash
 import io.jobial.sclap.CommandLineApp
 import org.apache.commons.io.IOUtils
 import spray.json._
-
-import java.io.{File, FileInputStream}
+import java.io.File
+import java.io.FileInputStream
 import scala.Console._
 import scala.collection.JavaConverters._
 import scala.io.StdIn.readLine
 
-object Condense extends CommandLineApp with CloudformationClient with S3Client with StsClient with ConfigurationUtils {
+object Condense extends CommandLineApp with CloudformationClient[IO] with S3Client[IO] with StsClient[IO] with ConfigurationUtils {
 
   // TODO: move common options under subcommands
   def run =
@@ -188,9 +189,8 @@ object Condense extends CommandLineApp with CloudformationClient with S3Client w
                           _ <- message(s"updating stack ${context.stackName}")
                           r <- updateStack(context.stackName, None, templateBody = Some(template.toJson.prettyPrint))
                         } yield r
-                      else {
-                        IO.raiseError(NotUpdatingStack(context.stackName))
-                      }
+                      else
+                        raiseError[IO, Unit](NotUpdatingStack(context.stackName))
                     }
                   } yield r
                 }
@@ -233,4 +233,5 @@ object Condense extends CommandLineApp with CloudformationClient with S3Client w
 
   case object LevelMustBeSpecified extends IllegalStateException(s"level must be specified for this stack")
 
+  val concurrent = Concurrent[IO]
 }

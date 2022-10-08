@@ -15,7 +15,7 @@ name := "condense"
 ThisBuild / organization := "io.jobial"
 ThisBuild / scalaVersion := "2.13.6"
 ThisBuild / crossScalaVersions := Seq("2.11.12", "2.12.13", "2.13.6")
-ThisBuild / version := "0.4.0"
+ThisBuild / version := "0.5.3"
 ThisBuild / scalacOptions += "-target:jvm-1.8"
 ThisBuild / publishArtifact in(Test, packageBin) := true
 ThisBuild / publishArtifact in(Test, packageSrc) := true
@@ -29,6 +29,7 @@ import xerial.sbt.Sonatype._
 lazy val commonSettings = Seq(
   publishConfiguration := publishConfiguration.value.withOverwrite(true),
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
+  publishM2Configuration := publishM2Configuration.value.withOverwrite(true),
   publishTo := publishTo.value.orElse(sonatypePublishToBundle.value),
   sonatypeProjectHosting := Some(GitHubHosting("jobial-io", "condense", "orbang@jobial.io")),
   organizationName := "Jobial OÜ",
@@ -41,17 +42,13 @@ lazy val commonSettings = Seq(
 
 lazy val CloudformationTemplateGeneratorVersion = "3.10.4"
 lazy val SclapVersion = "1.1.7"
-lazy val ScaseVersion = "0.4.0"
+lazy val ScaseVersion = "0.5.3"
 
 lazy val root: Project = project
   .in(file("."))
   .settings(commonSettings)
-  .settings(
-    publishArtifact := false,
-    makePom / publishArtifact := true
-  )
   .aggregate(`sbt-condense`, `condense-core`)
-  .dependsOn(`sbt-condense`, `condense-core`)
+  .dependsOn(`condense-core`)
 
 lazy val `condense-core` = project
   .settings(commonSettings)
