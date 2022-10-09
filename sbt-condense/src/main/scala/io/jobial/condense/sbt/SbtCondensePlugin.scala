@@ -39,7 +39,7 @@ object SbtCondensePlugin extends AutoPlugin {
     val condense = inputKey[Unit]("Condense Plugin")
     val cloudformationStackClass = settingKey[String]("cloudformationStackClass")
   }
-
+  
   import autoImport._
 
   override lazy val buildSettings = Seq(
@@ -53,11 +53,12 @@ object SbtCondensePlugin extends AutoPlugin {
   override lazy val projectSettings = Seq(
     condense := {
       val args = spaceDelimited("").parsed
+      val logger = streams.value.log
 
       if (!cloudformationStackClass.value.isEmpty) {
-        println(s"Condense called with args ${args.toList} for " + cloudformationStackClass.value)
-        println((artifactPath in Proguard).value)
-        println(sys.props("java.class.path"))
+        logger.info(s"Condense called with args ${args.toList} for " + cloudformationStackClass.value)
+        logger.info((artifactPath in Proguard).value.toString)
+        logger.info("Class path: " + sys.props("java.class.path"))
         val processBuilder = new ProcessBuilder
         val java = s"${sys.props("java.home")}${File.separator}bin${File.separator}java"
         val condenseArgs =
@@ -65,9 +66,9 @@ object SbtCondensePlugin extends AutoPlugin {
             Seq(s"--lambda-file=${(artifactPath in Proguard).value}", cloudformationStackClass.value) ++ args ++ Some("create-or-update")
           else
             Some(cloudformationStackClass.value) ++ args
-        val commandLine = List(java, "-Xmx512m", "-cp", (Runtime / fullClasspath).value.map(_.data.toString).mkString(File.pathSeparator),
+        val commandLine = List(java, "-Xmx512m", "-cp", ((Runtime / fullClasspath).value.map(_.data.toString) ++ (Test / fullClasspath).value.map(_.data.toString)).mkString(File.pathSeparator),
           "io.jobial.condense.Condense") ++ condenseArgs
-        println(commandLine)
+        logger.info(commandLine.mkString(" "))
         val c = processBuilder.inheritIO.command(commandLine.asJava)
         val process = c.start()
         val exitVal = process.waitFor

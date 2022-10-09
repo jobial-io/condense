@@ -15,11 +15,12 @@ name := "condense"
 ThisBuild / organization := "io.jobial"
 ThisBuild / scalaVersion := "2.13.6"
 ThisBuild / crossScalaVersions := Seq("2.11.12", "2.12.13", "2.13.6")
-ThisBuild / version := "0.5.3"
+ThisBuild / version := "0.5.4"
 ThisBuild / scalacOptions += "-target:jvm-1.8"
-ThisBuild / publishArtifact in(Test, packageBin) := true
-ThisBuild / publishArtifact in(Test, packageSrc) := true
-ThisBuild / publishArtifact in(Test, packageDoc) := true
+ThisBuild / javacOptions ++= Seq("-source", "11", "-target", "11")
+ThisBuild / Test / packageBin / publishArtifact := true
+ThisBuild / Test / packageSrc / publishArtifact := true
+ThisBuild / Test / packageDoc / publishArtifact := true
 
 import sbt.Defaults.sbtPluginExtra
 import sbt.Keys.{description, libraryDependencies, publishConfiguration}
@@ -42,7 +43,6 @@ lazy val commonSettings = Seq(
 
 lazy val CloudformationTemplateGeneratorVersion = "3.10.4"
 lazy val SclapVersion = "1.1.7"
-lazy val ScaseVersion = "0.5.3"
 
 lazy val root: Project = project
   .in(file("."))
@@ -56,8 +56,8 @@ lazy val `condense-core` = project
     libraryDependencies ++= Seq(
       "io.jobial" %% "cloud-formation-template-generator" % CloudformationTemplateGeneratorVersion,
       "io.jobial" %% "sclap" % SclapVersion,
-      "io.jobial" %% "scase-core" % ScaseVersion % "compile->compile;test->test",
-      "io.jobial" %% "scase-aws" % ScaseVersion % "compile->compile;test->test"
+      "io.jobial" %% "scase-core" % version.value % "compile->compile;test->test",
+      "io.jobial" %% "scase-aws" % version.value % "compile->compile;test->test"
     )
   )
 
@@ -77,8 +77,8 @@ lazy val `sbt-condense` = project
     sbtPlugin := scalaBinaryVersion.value == "2.12",
     pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
     libraryDependencies ++= {
-      val sbtV = (sbtBinaryVersion in pluginCrossBuild).value
-      val scalaV = (scalaBinaryVersion in update).value
+      val sbtV = (pluginCrossBuild / sbtBinaryVersion).value
+      val scalaV = (update / scalaBinaryVersion).value
 
       if (scalaBinaryVersion.value == "2.12")
         Seq(sbtPluginExtra("com.github.sbt" % "sbt-proguard" % "0.5.0", sbtV, scalaV))
