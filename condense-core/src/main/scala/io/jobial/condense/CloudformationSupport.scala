@@ -1475,7 +1475,7 @@ trait CloudformationSupport extends ConfigurationUtils with DefaultJsonProtocol 
   // TODO: make this generic for any F[_]
   def lambda[T: ClassTag](
     // using a higher default timeout because the scala library can be slow to load...
-    timeout: Option[Duration] = Some(10.seconds),
+    timeout: Option[Duration] = Some(30.seconds),
     s3Bucket: Option[String] = None,
     s3Key: Option[String] = None,
     memorySize: Option[Int] = None,
