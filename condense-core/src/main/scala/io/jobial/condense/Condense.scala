@@ -16,6 +16,7 @@ import cats.effect.Concurrent
 import cats.effect.IO
 import com.amazonaws.services.cloudformation.model.AlreadyExistsException
 import io.jobial.scase.aws.client._
+import io.jobial.scase.core.impl.TemporalEffect
 import io.jobial.scase.util.Hash
 import io.jobial.sclap.CommandLineApp
 import org.apache.commons.io.IOUtils
@@ -233,5 +234,5 @@ object Condense extends CommandLineApp with CloudformationClient[IO] with S3Clie
 
   case object LevelMustBeSpecified extends IllegalStateException(s"level must be specified for this stack")
 
-  val concurrent = Concurrent[IO]
+  val temporal = TemporalEffect[IO]
 }

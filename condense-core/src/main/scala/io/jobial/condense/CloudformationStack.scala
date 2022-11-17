@@ -12,11 +12,9 @@
  */
 package io.jobial.condense
 
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
 import com.monsanto.arch.cloudformation.model.Template
 import io.jobial.scase.aws.client.AwsContext
-
-import scala.concurrent.ExecutionContext
 
 trait CloudformationStack
   extends CloudformationSupport {

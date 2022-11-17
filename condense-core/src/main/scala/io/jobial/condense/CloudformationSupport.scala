@@ -23,6 +23,7 @@ import io.jobial.scase.aws.client.ConfigurationUtils
 import io.jobial.scase.aws.client.S3Client
 import io.jobial.scase.aws.client.StsClient
 import io.jobial.scase.aws.lambda.LambdaRequestHandler
+import io.jobial.scase.core.impl.TemporalEffect
 import io.jobial.scase.logging.Logging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
@@ -34,11 +35,7 @@ import scala.reflect.ClassTag
 
 trait CloudformationSupport extends ConfigurationUtils with DefaultJsonProtocol with S3Client[IO] with StsClient[IO] with Logging {
 
-  implicit val contextShift = IO.contextShift(global)
-
-  val concurrent = Concurrent[IO]
-
-  val timer = IO.timer(global)
+  val temporal = TemporalEffect[IO]
 
   case class CloudformationExpression(value: JsValue) {
     override def toString = value.prettyPrint
