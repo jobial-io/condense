@@ -12,8 +12,8 @@
  */
 package io.jobial.condense
 
-import cats.effect.Concurrent
 import cats.effect.IO
+import cats.effect.unsafe.IORuntime
 import com.monsanto.arch.cloudformation.model.Token._
 import com.monsanto.arch.cloudformation.model._
 import com.monsanto.arch.cloudformation.model.resource._
@@ -28,7 +28,6 @@ import io.jobial.scase.logging.Logging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import spray.json._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
@@ -36,6 +35,8 @@ import scala.reflect.ClassTag
 trait CloudformationSupport extends ConfigurationUtils with DefaultJsonProtocol with S3Client[IO] with StsClient[IO] with Logging {
 
   val temporal = TemporalEffect[IO]
+
+  val runtime = IORuntime.global
 
   case class CloudformationExpression(value: JsValue) {
     override def toString = value.prettyPrint
